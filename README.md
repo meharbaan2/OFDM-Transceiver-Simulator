@@ -28,17 +28,17 @@ Detailed per-frame debugging and signal power analysis
 
 ## 🧩 System Model
 [Bit Source]
-↓
+->
 [Modulation: QPSK / QAM]
-↓
+->
 [OFDM Modulation + Pilot Insertion]
-↓
+->
 [Channel: AWGN / Rayleigh Fading / Ideal]
-↓
+->
 [OFDM Demodulation + Channel Estimation]
-↓
+->
 [Equalization (MMSE / ZF / Simple)]
-↓
+->
 [Demodulation + BER Computation]
 
 ---
@@ -140,6 +140,8 @@ Target SNR: 20 dB
 BER: 4.46429e-05
 Bits compared: 22400 out of 22400
 Errors: 1
+
+---
 
 ### 🧰 Requirements
 - C++17 or higher
