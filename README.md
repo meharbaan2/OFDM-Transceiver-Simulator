@@ -1,149 +1,148 @@
-# 🛰️ OFDM Wireless Communication System Simulator (C++)
+# OFDM wireless link simulator (C++)
 
-### 🔬 Overview  
-This project is a **fully functional Orthogonal Frequency Division Multiplexing (OFDM)** communication system simulator implemented in modern **C++**.  
-It models the **transmitter, channel, and receiver chain** of a real digital wireless system — including modulation, channel effects, equalization, and bit error rate (BER) analysis.  
+### Overview
 
-The simulator allows you to test system performance under various conditions such as:
-- **AWGN** (Additive White Gaussian Noise)
-- **Rayleigh multipath fading**
-- **Different modulation schemes** (QPSK, 16-QAM, 64-QAM)
-- **Multiple equalizers** (MMSE, Zero Forcing, Simple)
+This project is an **orthogonal frequency-division multiplexing (OFDM)** baseband simulator in **C++**. It models a full **transmit → channel → receive** chain: modulation, IFFT/FFT-based OFDM, pilots, channel estimation, **MMSE** and **ZF** equalization, and **bit error rate (BER)** versus SNR.
 
-It’s a complete **baseband link-level simulator** — the same type of model used in research and pre-hardware validation of Wi-Fi, LTE, and 5G systems.
+You can exercise:
 
----
+- **AWGN** only, **frequency-selective Rayleigh** fading (per OFDM symbol) plus AWGN, or an **ideal** noiseless channel  
+- **QPSK**, **16-QAM**, **64-QAM**  
+- **Pilot-aided least-squares channel estimation** with linear interpolation across subcarriers  
 
-## 🧠 Features
-
-OFDM modulation/demodulation (IFFT/FFT based)  
-Pilot-based channel estimation  
-AWGN and Rayleigh fading channel models  
-MMSE, ZF, and Simple equalizers  
-Dynamic configuration via user input  
-BER and SNR computation  
-Detailed per-frame debugging and signal power analysis  
+The structure matches the kind of **link-level PHY** model used to study Wi‑Fi / cellular–style OFDM before hardware.
 
 ---
 
-## 🧩 System Model
-[Bit Source]
-->
-[Modulation: QPSK / QAM]
-->
-[OFDM Modulation + Pilot Insertion]
-->
-[Channel: AWGN / Rayleigh Fading / Ideal]
-->
-[OFDM Demodulation + Channel Estimation]
-->
-[Equalization (MMSE / ZF / Simple)]
-->
-[Demodulation + BER Computation]
+### Features
+
+| Area | What is implemented |
+|------|---------------------|
+| OFDM | IFFT at TX, cyclic prefix, FFT at RX; unitary-style \(1/\sqrt{N}\) scaling on FFT/IFFT (FFTW3) |
+| Channel | AWGN; Rayleigh as **per-symbol** frequency response \(H[k]\) from a zero-padded CIR (consistent with CP-OFDM when CP covers delay spread) |
+| Estimation | Comb pilots, LS at pilots, complex linear interpolation |
+| Equalization | Per-subcarrier **MMSE** and **regularized ZF** |
+| Analysis | BER; optional CSV **SNR sweep** from the command line |
+| Quality | Built-in **`test`** mode with automated checks |
+
+**Not in the current code path:** a third “Simple” equalizer, per-frame debug prints, and constellation-based SNR estimation (those belonged to an earlier single-file version).
 
 ---
 
-## How It Works (Conceptually)
-The simulator follows real-world signal processing principles:
+### Signal flow
 
-Radio transmitter encodes data onto subcarriers
-Noise & multipath affect the signal	              
-Receiver FFT recovers subcarriers	
-Equalizer compensates for fading
-Decoder recovers bits and measures BER
-
-This allows you to test link-level performance of OFDM under controlled virtual conditions — identical to the methods used in 5G/6G PHY research.
+```text
+Bits → Modulate (QPSK/QAM) → Insert pilots → OFDM mod (IFFT + CP)
+    → Channel (AWGN / Rayleigh / ideal) → OFDM demod (remove CP + FFT)
+    → Channel estimate → Equalize (MMSE or ZF) → Demap → BER
+```
 
 ---
 
-## 🧪 Example Output
+### Example (interactive)
+
+The UI is shorter than in older builds; a typical run looks like this:
+
+```text
 === OFDM System Configuration ===
-Select Channel Model:
-1. AWGN (Additive White Gaussian Noise)
-2. Rayleigh Fading (Multipath)
-3. No Channel (Ideal - for testing)
-Choice (1-3): 1
+Channel: 1=AWGN  2=Rayleigh (freq-selective)  3=Ideal
+Choice: 1
+Modulation: 1=QPSK  2=16-QAM  3=64-QAM
+Choice: 2
+Equalizer: 1=MMSE  2=ZF
+Choice: 1
+SNR (dB): 20
 
-Select Modulation Scheme:
-1. QPSK (2 bits/symbol)
-2. 16-QAM (4 bits/symbol)
-3. 64-QAM (6 bits/symbol)
-Choice (1-3): 2
-
-Select Equalizer Type:
-1. MMSE (Minimum Mean Square Error)
-2. ZF (Zero Forcing)
-3. Simple Equalizer
-Choice (1-3): 1
-
-Enter SNR (dB): 20
-
-=== OFDM System Parameters ===
-Subcarriers: 64, CP: 16
-Pilots per frame: 8, Data per frame: 56
-Number of frames: 100
-Total data symbols: 5600
-Total bits: 22400
+--- Parameters ---
+N=64, CP=16, pilot spacing=8, frames=100
 Modulation: 16-QAM
-Channel: AWGN
-SNR: 20 dB
+Channel: AWGN  Equalizer: MMSE  SNR=20 dB
 
-=== Transmitter ===
-Data symbols: 5600
-Symbols with pilots: 6400
-Transmitted signal length: 8000
+Frames processed: 100/100
+BER: 0.000000  (0 errors / 22400 bits)
+```
 
-=== Channel: AWGN ===
-Received signal length: 8000
-
-=== Receiver ===
-Received symbols with pilots: 6400
-
-=== SIGNAL POWER ANALYSIS ===
-Data symbols power: 0.998143
-TX signal power: 0.997411
-RX signal power: 1.01
-RX symbols power: 1.01017
-Channel gain: 1.01205
-
-=== Channel State Information (Frame 0) ===
-Channel magnitude statistics:
-  Min: 0.915944
-  10%: 0.92706
-  Median: 1.02975
-  90%: 1.07874
-  Max: 1.08906
-Weak subcarriers (|H| < 0.1): 0/64
-
-=== Equalization Debug (Frame 0) ===
-Equalizer: MMSE
-Equalized frame power: 0.948247
-First 5 equalized symbols:
-  (1.02611, 0.000182768)
-  (0.866264, -0.854319)
-  (1.03565, -0.332461)
-  (0.225322, -0.371625)
-  (-0.344421, 0.975701)
-
-=== System Performance Summary ===
-Frames processed: 100 out of 100
-Equalized data symbols: 5600
-Received bits: 22400
-Constellation-based SNR estimation:
-Estimated SNR: 60.467 linear, 17.8152 dB
-
-=== Results ===
-Modulation: 16-QAM
-Channel: AWGN
-Equalizer: MMSE
-Target SNR: 20 dB
-BER: 4.46429e-05
-Bits compared: 22400 out of 22400
-Errors: 1
+(Exact BER depends on the random bit stream and SNR.)
 
 ---
 
-### 🧰 Requirements
-- C++17 or higher
-- FFTW or equivalent FFT library
-- Any C++ compiler (GCC, Clang, MSVC)
+### Requirements
+
+- **C++17** or newer  
+- **FFTW3** (headers + import library + DLL on Windows)  
+- Toolchain: **MSVC** (recommended here), or **GCC/Clang** via CMake  
+
+---
+
+### Project layout
+
+```text
+OFDMSim/
+  include/ofdm/     Headers (namespace ofdm)
+  src/              Sources and main.cpp
+  OFDMSim.sln       Visual Studio solution
+  CMakeLists.txt    Optional CMake (set FFTW_ROOT)
+```
+
+---
+
+### Build (Visual Studio, Windows x64)
+
+1. Open **`OFDMSim.sln`** from the **`OFDMSim`** folder (not only the parent `C++` folder).  
+   - If VS shows **Miscellaneous Files → OFDMSim.cpp** (“file deleted”), close that tab: the project was refactored; entry point is **`src/main.cpp`**. You can delete the **`.vs`** folder while VS is closed to clear stale tabs.  
+   - If the solution fails to load, check that **`OFDMSim.sln`** has a single token on the `VisualStudioVersion` line (no stray text after the version number).
+
+2. **FFTW:** the project expects a sibling folder **`../fftw-3.3.5-dll64`** (relative to `OFDMSim/`) containing `fftw3.h` and `libfftw3-3.lib`. Paths are **`OfdmFftwInc`** / **`OfdmFftwLib`** in **`OFDMSim.vcxproj`** — adjust if your FFTW location differs.
+
+3. Select configuration **x64** (not Win32; FFTW layout here is 64-bit), then **Debug** or **Release**.
+
+4. A **post-build** step copies **`libfftw3-3.dll`** next to **`OFDMSim.exe`** when that DLL exists under the FFTW directory.
+
+---
+
+### Build (CMake)
+
+```bash
+cmake -S . -B build -DFFTW_ROOT=/path/to/fftw
+cmake --build build
+```
+
+`FFTW_ROOT` must contain `fftw3.h` and the library appropriate for your platform.
+
+---
+
+### Run
+
+```text
+OFDMSim.exe                 Interactive prompts
+OFDMSim.exe test            Automated self-tests (exit code 0 = all passed)
+OFDMSim.exe sweep <ch> <mod> <eq> [taps]
+OFDMSim.exe --help
+```
+
+**Sweep:** `ch` = 1 AWGN, 2 Rayleigh, 3 ideal; `mod` = 1 QPSK, 2 16-QAM, 3 64-QAM; `eq` = 1 MMSE, 2 ZF; optional `taps` for Rayleigh (default 4). Prints CSV: `snr_db,ber,errors,bits`.
+
+---
+
+### Self-tests
+
+```text
+OFDMSim.exe test
+```
+
+Runs FFT round-trip, mod/demod, pilot LS sanity, end-to-end ideal and high-SNR checks, and a Rayleigh smoke test. Use after changing the PHY or build.
+
+---
+
+### Model notes (read before trusting numbers)
+
+- **Rayleigh:** applied in the **frequency domain per OFDM symbol** (\(Y[k]=H[k]X[k]\) before the IFFT). This matches the usual CP-OFDM circular model when **`cp_len`** is large enough versus the channel length (use **`cp_len ≥ rayleigh_taps`** in practice).  
+- **MMSE** uses a **scalar** \(\sigma^2\) from the configured SNR; it is not per-tone noise tracking.  
+- **Pilots:** linear interpolation only — no MMSE or DFT-based smoothing.  
+- No timing offset, no CFO, no coding — BER is **uncoded**.
+
+---
+
+### License / third party
+
+FFTW is distributed under its own license; ship and attribute it according to [FFTW’s terms](http://fftw.org) when redistributing binaries.
