@@ -10,8 +10,17 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <random>
 
 namespace ofdm {
+
+std::mt19937 make_rng(uint32_t seed) {
+    if (seed == 0) {
+        std::random_device rd;
+        return std::mt19937(rd());
+    }
+    return std::mt19937(seed);
+}
 
 SimResult run_ofdm_sim(const SimParams& p, std::mt19937& gen) {
     SimResult r;
@@ -71,6 +80,8 @@ SimResult run_ofdm_sim(const SimParams& p, std::mt19937& gen) {
         if (bits[static_cast<size_t>(i)] != rx_bits[static_cast<size_t>(i)]) r.errors++;
     r.bits_compared = ncmp;
     r.ber = ncmp > 0 ? static_cast<double>(r.errors) / static_cast<double>(ncmp) : 0.0;
+    r.es_n0_db = p.snr_db;
+    r.eb_n0_db = eb_n0_db(p.snr_db, p.scheme);
     return r;
 }
 

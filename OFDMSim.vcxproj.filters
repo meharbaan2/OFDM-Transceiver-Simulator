@@ -21,6 +21,7 @@
     <ClCompile Include="src\equalizer.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\simulation.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\self_test.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\cli.cpp"><Filter>Source Files</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ofdm\types.hpp"><Filter>Header Files\ofdm</Filter></ClInclude>
@@ -32,5 +33,6 @@
     <ClInclude Include="include\ofdm\equalizer.hpp"><Filter>Header Files\ofdm</Filter></ClInclude>
     <ClInclude Include="include\ofdm\simulation.hpp"><Filter>Header Files\ofdm</Filter></ClInclude>
     <ClInclude Include="include\ofdm\self_test.hpp"><Filter>Header Files\ofdm</Filter></ClInclude>
+    <ClInclude Include="include\ofdm\cli.hpp"><Filter>Header Files\ofdm</Filter></ClInclude>
   </ItemGroup>
 </Project>

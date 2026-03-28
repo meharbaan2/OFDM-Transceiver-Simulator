@@ -1,0 +1,9 @@
+# OFDMSim sweep
+# generated=2026-03-28T05:07:37
+# cmdline=D:\Coding\C++\OFDMSim\x64\Debug\OFDMSim.exe sweep 1 1 1 --snr-min 0 --snr-max 8 --snr-step 4 --out d:\Coding\C++\OFDMSim\build\ber_test.csv
+# channel=1 modulation=QPSK equalizer=1 frames=200 seed=12345
+# snr_range=0:4:8
+snr_db,es_n0_db,eb_n0_db,ber,errors,bits
+0,0.00000000,-3.01029996,0.24790179,5553,22400
+4,4.00000000,0.98970004,0.11102679,2487,22400
+8,8.00000000,4.98970004,0.02080357,466,22400

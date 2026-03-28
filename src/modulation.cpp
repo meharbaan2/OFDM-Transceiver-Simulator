@@ -104,4 +104,10 @@ std::vector<int> demodulate(const std::vector<std::complex<double>>& symbols, Mo
     return bits;
 }
 
+double eb_n0_db(double es_n0_db, ModScheme scheme) {
+    const int b = bits_per_symbol(scheme);
+    if (b <= 0) return es_n0_db;
+    return es_n0_db - 10.0 * std::log10(static_cast<double>(b));
+}
+
 } // namespace ofdm

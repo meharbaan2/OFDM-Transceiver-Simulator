@@ -21,6 +21,7 @@ if(FFTW_ROOT)
     src/equalizer.cpp
     src/simulation.cpp
     src/self_test.cpp
+    src/cli.cpp
   )
   target_include_directories(ofdmsim PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" "${FFTW_ROOT}")
   target_link_directories(ofdmsim PRIVATE "${FFTW_ROOT}")
