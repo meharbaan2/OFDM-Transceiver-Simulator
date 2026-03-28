@@ -70,6 +70,10 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OfdmFftwInc>$(ProjectDir)..\fftw-3.3.5-dll64</OfdmFftwInc>
+    <OfdmFftwLib>$(ProjectDir)..\fftw-3.3.5-dll64</OfdmFftwLib>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -104,14 +108,17 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\src;.\src\common;.\src\modulation;.\src\channel;.\src\receiver;.\src\utils;D:\Coding\C++\fftw-3.3.5-dll64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(OfdmFftwInc);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Coding\C++\fftw-3.3.5-dll64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OfdmFftwLib);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);libfftw3-3.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(OfdmFftwLib)\libfftw3-3.dll" copy /Y "$(OfdmFftwLib)\libfftw3-3.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -121,16 +128,41 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(OfdmFftwInc);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OfdmFftwLib);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);libfftw3-3.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(OfdmFftwLib)\libfftw3-3.dll" copy /Y "$(OfdmFftwLib)\libfftw3-3.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="OFDMSim.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\modulation.cpp" />
+    <ClCompile Include="src\ofdm_engine.cpp" />
+    <ClCompile Include="src\ofdm_frame.cpp" />
+    <ClCompile Include="src\channel_awgn.cpp" />
+    <ClCompile Include="src\pilots.cpp" />
+    <ClCompile Include="src\equalizer.cpp" />
+    <ClCompile Include="src\simulation.cpp" />
+    <ClCompile Include="src\self_test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\ofdm\types.hpp" />
+    <ClInclude Include="include\ofdm\modulation.hpp" />
+    <ClInclude Include="include\ofdm\ofdm_engine.hpp" />
+    <ClInclude Include="include\ofdm\ofdm_frame.hpp" />
+    <ClInclude Include="include\ofdm\channel_awgn.hpp" />
+    <ClInclude Include="include\ofdm\pilots.hpp" />
+    <ClInclude Include="include\ofdm\equalizer.hpp" />
+    <ClInclude Include="include\ofdm\simulation.hpp" />
+    <ClInclude Include="include\ofdm\self_test.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
